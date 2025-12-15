@@ -3,60 +3,129 @@ package com.example.cosmicweather.domain.template
 import com.example.cosmicweather.domain.model.ZodiacSign
 
 /**
+ * Represents the personality archetype of a zodiac sign.
+ */
+data class SignArchetype(
+    val energyStyle: String,  // How they express themselves
+    val relationalTrait: String,  // How they relate to others
+    val communicationStyle: String  // How they communicate
+)
+
+/**
  * Central repository for horoscope templates.
  * Contains zodiac compatibility data and weather influences.
+ * Covers all 144 zodiac sign combinations through algorithmic generation.
  */
 object HoroscopeTemplates {
 
     /**
-     * Zodiac compatibility templates.
-     * Map key: Pair of zodiac signs (normalized so A+B = B+A)
-     *
-     * TODO: Add all 144 combinations. Currently contains a few examples.
+     * Individual zodiac sign archetypes.
+     * Used to generate compatibility for all combinations.
      */
-    private val compatibilityMap: Map<Pair<ZodiacSign, ZodiacSign>, ZodiacCompatibility> = mapOf(
-        // Fire + Water examples
-        normalizePair(ZodiacSign.SCORPIO, ZodiacSign.VIRGO) to ZodiacCompatibility(
-            sign1 = ZodiacSign.SCORPIO,
-            sign2 = ZodiacSign.VIRGO,
-            baseClimate = "Intense but grounded",
-            baseCompatibility = "High analytical synergy with deep emotional undercurrents"
+    private val signArchetypes = mapOf(
+        // Fire Signs - Passionate, energetic, spontaneous
+        ZodiacSign.ARIES to SignArchetype(
+            energyStyle = "bold and initiating",
+            relationalTrait = "direct and competitive",
+            communicationStyle = "assertive and straightforward"
+        ),
+        ZodiacSign.LEO to SignArchetype(
+            energyStyle = "warm and expressive",
+            relationalTrait = "generous and dramatic",
+            communicationStyle = "confident and theatrical"
+        ),
+        ZodiacSign.SAGITTARIUS to SignArchetype(
+            energyStyle = "adventurous and philosophical",
+            relationalTrait = "optimistic and freedom-loving",
+            communicationStyle = "candid and expansive"
         ),
 
-        // Fire + Fire
-        normalizePair(ZodiacSign.ARIES, ZodiacSign.LEO) to ZodiacCompatibility(
-            sign1 = ZodiacSign.ARIES,
-            sign2 = ZodiacSign.LEO,
-            baseClimate = "Passionate and dynamic",
-            baseCompatibility = "Natural leaders who inspire each other"
+        // Earth Signs - Practical, grounded, reliable
+        ZodiacSign.TAURUS to SignArchetype(
+            energyStyle = "steady and sensual",
+            relationalTrait = "loyal and possessive",
+            communicationStyle = "deliberate and practical"
+        ),
+        ZodiacSign.VIRGO to SignArchetype(
+            energyStyle = "analytical and precise",
+            relationalTrait = "helpful and critical",
+            communicationStyle = "detailed and thoughtful"
+        ),
+        ZodiacSign.CAPRICORN to SignArchetype(
+            energyStyle = "disciplined and ambitious",
+            relationalTrait = "responsible and reserved",
+            communicationStyle = "structured and goal-oriented"
         ),
 
-        // Earth + Water
-        normalizePair(ZodiacSign.TAURUS, ZodiacSign.CANCER) to ZodiacCompatibility(
-            sign1 = ZodiacSign.TAURUS,
-            sign2 = ZodiacSign.CANCER,
-            baseClimate = "Nurturing and stable",
-            baseCompatibility = "Emotional security meets practical support"
+        // Air Signs - Intellectual, social, communicative
+        ZodiacSign.GEMINI to SignArchetype(
+            energyStyle = "curious and adaptable",
+            relationalTrait = "social and versatile",
+            communicationStyle = "quick-witted and playful"
+        ),
+        ZodiacSign.LIBRA to SignArchetype(
+            energyStyle = "harmonious and diplomatic",
+            relationalTrait = "partnership-focused and balanced",
+            communicationStyle = "charming and considerate"
+        ),
+        ZodiacSign.AQUARIUS to SignArchetype(
+            energyStyle = "innovative and unconventional",
+            relationalTrait = "independent and humanitarian",
+            communicationStyle = "intellectual and detached"
         ),
 
-        // Air + Air
-        normalizePair(ZodiacSign.GEMINI, ZodiacSign.AQUARIUS) to ZodiacCompatibility(
-            sign1 = ZodiacSign.GEMINI,
-            sign2 = ZodiacSign.AQUARIUS,
-            baseClimate = "Intellectually stimulating",
-            baseCompatibility = "Mental connection and endless conversations"
+        // Water Signs - Emotional, intuitive, nurturing
+        ZodiacSign.CANCER to SignArchetype(
+            energyStyle = "protective and nurturing",
+            relationalTrait = "sensitive and moody",
+            communicationStyle = "indirect and emotional"
         ),
-
-        // Water + Water
-        normalizePair(ZodiacSign.PISCES, ZodiacSign.SCORPIO) to ZodiacCompatibility(
-            sign1 = ZodiacSign.PISCES,
-            sign2 = ZodiacSign.SCORPIO,
-            baseClimate = "Deeply intuitive",
-            baseCompatibility = "Emotional depth and psychic understanding"
+        ZodiacSign.SCORPIO to SignArchetype(
+            energyStyle = "intense and transformative",
+            relationalTrait = "passionate and secretive",
+            communicationStyle = "penetrating and powerful"
         ),
+        ZodiacSign.PISCES to SignArchetype(
+            energyStyle = "dreamy and compassionate",
+            relationalTrait = "empathetic and boundary-less",
+            communicationStyle = "poetic and non-verbal"
+        )
+    )
 
-        // Add more combinations here...
-        // For now, unlisted combinations will use fallback logic
+    /**
+     * Element compatibility patterns.
+     * Defines how different elemental energies interact.
+     */
+    private val elementCompatibility = mapOf(
+        // Same element - natural understanding
+        Pair("Fire", "Fire") to Pair("Passionate and dynamic", "Two flames that either ignite or compete"),
+        Pair("Earth", "Earth") to Pair("Grounded and stable", "Practical partnership built on shared values"),
+        Pair("Air", "Air") to Pair("Intellectually stimulating", "Mental connection with endless ideas"),
+        Pair("Water", "Water") to Pair("Deeply intuitive", "Emotional resonance and psychic understanding"),
+
+        // Fire + Earth - challenging but growth-oriented
+        Pair("Fire", "Earth") to Pair("Inspiring yet grounding", "Passion meets practicality in creative tension"),
+        Pair("Earth", "Fire") to Pair("Stabilizing yet enlivening", "Security provides foundation for boldness"),
+
+        // Fire + Air - harmonious and energizing
+        Pair("Fire", "Air") to Pair("Exciting and expansive", "Ideas fuel action in mutually supportive flow"),
+        Pair("Air", "Fire") to Pair("Stimulating and encouraging", "Communication fans the flames of passion"),
+
+        // Fire + Water - steamy but complex
+        Pair("Fire", "Water") to Pair("Intense and transformative", "Heat and moisture create powerful alchemy"),
+        Pair("Water", "Fire") to Pair("Soulful yet volatile", "Depth meets intensity in passionate dance"),
+
+        // Earth + Air - different perspectives
+        Pair("Earth", "Air") to Pair("Complementary but contrasting", "Grounded reality meets abstract thinking"),
+        Pair("Air", "Earth") to Pair("Balancing and educational", "Logic grounds imagination, routine inspires innovation"),
+
+        // Earth + Water - nurturing and compatible
+        Pair("Earth", "Water") to Pair("Nurturing and fertile", "Emotional depth meets tangible support"),
+        Pair("Water", "Earth") to Pair("Comforting and secure", "Feelings find safe container in stability"),
+
+        // Air + Water - gentle but disconnected
+        Pair("Air", "Water") to Pair("Curious yet elusive", "Thoughts try to grasp feelings in delicate balance"),
+        Pair("Water", "Air") to Pair("Flowing and conceptual", "Emotions seek expression through ideas")
     )
 
     /**
@@ -127,11 +196,43 @@ object HoroscopeTemplates {
     )
 
     /**
-     * Get zodiac compatibility for a pair of signs.
-     * Returns null if not found (fallback logic will be used).
+     * Get zodiac compatibility for any pair of signs.
+     * Generates compatibility using sign archetypes and element patterns.
+     * Covers all 144 combinations algorithmically.
      */
     fun getCompatibility(sign1: ZodiacSign, sign2: ZodiacSign): ZodiacCompatibility? {
-        return compatibilityMap[normalizePair(sign1, sign2)]
+        val archetype1 = signArchetypes[sign1] ?: return null
+        val archetype2 = signArchetypes[sign2] ?: return null
+
+        // Get element compatibility pattern
+        val elementPattern = elementCompatibility[Pair(sign1.element, sign2.element)]
+            ?: return null
+
+        // Build relationship climate
+        val baseClimate = elementPattern.first
+
+        // Build compatibility description combining individual traits and element dynamics
+        val baseCompatibility = when {
+            sign1 == sign2 -> {
+                // Same sign - mirror dynamic
+                "Mirror souls with ${archetype1.energyStyle} energy and ${archetype1.relationalTrait} approach. ${elementPattern.second}"
+            }
+            sign1.element == sign2.element -> {
+                // Same element but different signs
+                "${archetype1.energyStyle.replaceFirstChar { it.uppercase() }} meets ${archetype2.energyStyle}. ${elementPattern.second}"
+            }
+            else -> {
+                // Different elements
+                "${archetype1.relationalTrait.replaceFirstChar { it.uppercase() }} encounters ${archetype2.relationalTrait}. ${elementPattern.second}"
+            }
+        }
+
+        return ZodiacCompatibility(
+            sign1 = sign1,
+            sign2 = sign2,
+            baseClimate = baseClimate,
+            baseCompatibility = baseCompatibility
+        )
     }
 
     /**
@@ -142,22 +243,17 @@ object HoroscopeTemplates {
     }
 
     /**
-     * Get fallback compatibility for any sign pair.
-     * Used when specific pairing is not defined.
+     * Get fallback compatibility (now uses main algorithm).
+     * Kept for backward compatibility.
      */
     fun getFallbackCompatibility(sign1: ZodiacSign, sign2: ZodiacSign): ZodiacCompatibility {
-        // Determine element-based compatibility
-        val sameElement = sign1.element == sign2.element
-
-        return ZodiacCompatibility(
-            sign1 = sign1,
-            sign2 = sign2,
-            baseClimate = if (sameElement) "Naturally aligned" else "Complementary energies",
-            baseCompatibility = if (sameElement)
-                "Shared ${sign1.element.lowercase()} element creates mutual understanding"
-            else
-                "${sign1.element} meets ${sign2.element} for dynamic balance"
-        )
+        return getCompatibility(sign1, sign2)
+            ?: ZodiacCompatibility(
+                sign1 = sign1,
+                sign2 = sign2,
+                baseClimate = "Unique connection",
+                baseCompatibility = "Every pairing creates its own path"
+            )
     }
 
     /**
