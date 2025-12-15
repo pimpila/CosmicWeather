@@ -1,0 +1,34 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.example.cosmicweather.data-release-16:/values-hy/values-hy.xml",
+            "map": [
+                {
+                    "source": "/Users/pimpilahowe/.gradle/caches/8.13/transforms/fd32f5cb4b40a5626e5d1a0a38d971de/transformed/core-1.17.0/res/values-hy/values-hy.xml",
+                    "from": {
+                        "startLines": "2,3,4,5,6,7,8,9",
+                        "startColumns": "4,4,4,4,4,4,4,4",
+                        "startOffsets": "55,155,260,358,457,562,664,775",
+                        "endColumns": "99,104,97,98,104,101,110,100",
+                        "endOffsets": "150,255,353,452,557,659,770,871"
+                    }
+                }
+            ]
+        },
+        {
+            "outputFile": "com.example.cosmicweather.data-mergeReleaseResources-14:/values-hy/values-hy.xml",
+            "map": [
+                {
+                    "source": "/Users/pimpilahowe/.gradle/caches/8.13/transforms/fd32f5cb4b40a5626e5d1a0a38d971de/transformed/core-1.17.0/res/values-hy/values-hy.xml",
+                    "from": {
+                        "startLines": "2,3,4,5,6,7,8,9",
+                        "startColumns": "4,4,4,4,4,4,4,4",
+                        "startOffsets": "55,155,260,358,457,562,664,775",
+                        "endColumns": "99,104,97,98,104,101,110,100",
+                        "endOffsets": "150,255,353,452,557,659,770,871"
+                    }
+                }
+            ]
+        }
+    ]
+}

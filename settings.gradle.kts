@@ -21,3 +21,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "CosmicWeather"
 include(":app")
+include(":domain")
+include(":data")
