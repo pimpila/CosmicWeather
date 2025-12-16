@@ -2,6 +2,7 @@ package com.example.cosmicweather.presentation.screen
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -11,6 +12,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -45,23 +47,45 @@ private fun ZodiacSign.toDrawableRes(): Int = when (this) {
 }
 
 /**
- * Maps weather conditions to their background drawable resources.
+ * Maps weather conditions to their background drawable resources (images only).
+ * Returns null if the weather type uses a gradient instead.
  */
 @DrawableRes
-private fun getWeatherBackgroundRes(weatherCondition: String): Int = when (weatherCondition) {
+private fun getWeatherBackgroundRes(weatherCondition: String): Int? = when (weatherCondition) {
     "Sunny" -> R.drawable.bg_weather_sunny
     "Rainy" -> R.drawable.bg_weather_rainy
     "Cloudy" -> R.drawable.bg_weather_cloudy
     "Snowy" -> R.drawable.bg_weather_snowy
     "Stormy" -> R.drawable.bg_weather_stormy
     "Clear Night" -> R.drawable.bg_weather_clear_night
-    "Foggy" -> R.drawable.bg_weather_foggy
-    "Partly Cloudy" -> R.drawable.bg_weather_partly_cloudy
-    "Windy" -> R.drawable.bg_weather_windy
-    "Hot" -> R.drawable.bg_weather_hot
-    "Crisp" -> R.drawable.bg_weather_crisp
-    "Humid" -> R.drawable.bg_weather_humid
-    else -> R.drawable.bg_weather_partly_cloudy // Default fallback
+    else -> null // Weather types without images use gradients
+}
+
+/**
+ * Gets gradient brush for weather conditions that don't have images.
+ */
+private fun getWeatherGradient(weatherCondition: String): Brush = when (weatherCondition) {
+    "Foggy" -> Brush.verticalGradient(
+        colors = listOf(Color(0xFFB0BEC5), Color(0xFF90A4AE), Color(0xFF78909C))
+    )
+    "Partly Cloudy" -> Brush.verticalGradient(
+        colors = listOf(Color(0xFF81D4FA), Color(0xFF4FC3F7), Color(0xFF29B6F6))
+    )
+    "Windy" -> Brush.verticalGradient(
+        colors = listOf(Color(0xFFB0BEC5), Color(0xFF78909C), Color(0xFF546E7A))
+    )
+    "Hot" -> Brush.verticalGradient(
+        colors = listOf(Color(0xFFFF6F00), Color(0xFFFF8F00), Color(0xFFFFA726))
+    )
+    "Crisp" -> Brush.verticalGradient(
+        colors = listOf(Color(0xFF90CAF9), Color(0xFF64B5F6), Color(0xFF42A5F5))
+    )
+    "Humid" -> Brush.verticalGradient(
+        colors = listOf(Color(0xFFFFE082), Color(0xFFFFD54F), Color(0xFFFFCA28))
+    )
+    else -> Brush.verticalGradient(
+        colors = listOf(Color(0xFF81D4FA), Color(0xFF4FC3F7), Color(0xFF29B6F6))
+    )
 }
 
 /**
@@ -113,12 +137,23 @@ fun CosmicWeatherScreen(
         Box(modifier = Modifier.fillMaxSize()) {
             // Dynamic weather background
             horoscope?.let { horo ->
-                Image(
-                    painter = painterResource(getWeatherBackgroundRes(horo.weather.condition)),
-                    contentDescription = "Weather background",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
+                val backgroundRes = getWeatherBackgroundRes(horo.weather.condition)
+                if (backgroundRes != null) {
+                    // Use image background
+                    Image(
+                        painter = painterResource(backgroundRes),
+                        contentDescription = "Weather background",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    // Use gradient background
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(getWeatherGradient(horo.weather.condition))
+                    )
+                }
             }
 
             // Content overlay
