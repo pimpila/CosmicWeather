@@ -1,6 +1,7 @@
 package com.example.cosmicweather.presentation.screen
 
 import androidx.annotation.DrawableRes
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -10,6 +11,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -39,6 +42,26 @@ private fun ZodiacSign.toDrawableRes(): Int = when (this) {
     ZodiacSign.CAPRICORN -> R.drawable.ic_zodiac_capricorn
     ZodiacSign.AQUARIUS -> R.drawable.ic_zodiac_aquarius
     ZodiacSign.PISCES -> R.drawable.ic_zodiac_pisces
+}
+
+/**
+ * Maps weather conditions to their background drawable resources.
+ */
+@DrawableRes
+private fun getWeatherBackgroundRes(weatherCondition: String): Int = when (weatherCondition) {
+    "Sunny" -> R.drawable.bg_weather_sunny
+    "Rainy" -> R.drawable.bg_weather_rainy
+    "Cloudy" -> R.drawable.bg_weather_cloudy
+    "Snowy" -> R.drawable.bg_weather_snowy
+    "Stormy" -> R.drawable.bg_weather_stormy
+    "Clear Night" -> R.drawable.bg_weather_clear_night
+    "Foggy" -> R.drawable.bg_weather_foggy
+    "Partly Cloudy" -> R.drawable.bg_weather_partly_cloudy
+    "Windy" -> R.drawable.bg_weather_windy
+    "Hot" -> R.drawable.bg_weather_hot
+    "Crisp" -> R.drawable.bg_weather_crisp
+    "Humid" -> R.drawable.bg_weather_humid
+    else -> R.drawable.bg_weather_partly_cloudy // Default fallback
 }
 
 /**
@@ -73,27 +96,41 @@ fun CosmicWeatherScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Refresh,
-                            contentDescription = "New Reading"
+                            contentDescription = "New Reading",
+                            tint = Color.White
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    containerColor = Color.Transparent,
+                    titleContentColor = Color.White
                 )
             )
         },
-        modifier = modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize(),
+        containerColor = Color.Transparent
     ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            // Dynamic weather background
+            horoscope?.let { horo ->
+                Image(
+                    painter = painterResource(getWeatherBackgroundRes(horo.weather.condition)),
+                    contentDescription = "Weather background",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+            }
+
+            // Content overlay
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
             // Zodiac Sign Selectors
             SignSelectorsCard(
                 userSign = userSign,
@@ -129,6 +166,7 @@ fun CosmicWeatherScreen(
             horoscope?.let { horo ->
                 HoroscopeCard(horoscope = horo)
             }
+        }
         }
     }
 }
