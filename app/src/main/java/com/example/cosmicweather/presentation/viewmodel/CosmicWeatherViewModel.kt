@@ -20,13 +20,13 @@ class CosmicWeatherViewModel(
     private val horoscopeGenerator: HoroscopeGenerator
 ) : ViewModel() {
 
-    // User's zodiac sign
-    private val _userSign = MutableStateFlow(ZodiacSign.ARIES)
-    val userSign: StateFlow<ZodiacSign> = _userSign.asStateFlow()
+    // User's zodiac sign (nullable - starts as null)
+    private val _userSign = MutableStateFlow<ZodiacSign?>(null)
+    val userSign: StateFlow<ZodiacSign?> = _userSign.asStateFlow()
 
-    // Partner's zodiac sign
-    private val _partnerSign = MutableStateFlow(ZodiacSign.TAURUS)
-    val partnerSign: StateFlow<ZodiacSign> = _partnerSign.asStateFlow()
+    // Partner's zodiac sign (nullable - starts as null)
+    private val _partnerSign = MutableStateFlow<ZodiacSign?>(null)
+    val partnerSign: StateFlow<ZodiacSign?> = _partnerSign.asStateFlow()
 
     // Generated horoscope
     private val _horoscope = MutableStateFlow<Horoscope?>(null)
@@ -40,31 +40,41 @@ class CosmicWeatherViewModel(
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
-    init {
-        // Generate initial horoscope on startup
-        generateNewReading()
-    }
-
     /**
-     * Update user's zodiac sign and regenerate horoscope.
+     * Update user's zodiac sign and regenerate horoscope if both signs are selected.
      */
     fun selectUserSign(sign: ZodiacSign) {
         _userSign.value = sign
-        generateNewReading()
+        // Only generate if both signs are selected
+        if (_partnerSign.value != null) {
+            generateNewReading()
+        }
     }
 
     /**
-     * Update partner's zodiac sign and regenerate horoscope.
+     * Update partner's zodiac sign and regenerate horoscope if both signs are selected.
      */
     fun selectPartnerSign(sign: ZodiacSign) {
         _partnerSign.value = sign
-        generateNewReading()
+        // Only generate if both signs are selected
+        if (_userSign.value != null) {
+            generateNewReading()
+        }
     }
 
     /**
      * Generate a new horoscope reading with random weather.
+     * Only generates if both signs are selected.
      */
     fun generateNewReading() {
+        val userSignValue = _userSign.value
+        val partnerSignValue = _partnerSign.value
+
+        // Both signs must be selected to generate horoscope
+        if (userSignValue == null || partnerSignValue == null) {
+            return
+        }
+
         viewModelScope.launch {
             _isLoading.value = true
             _error.value = null
@@ -76,8 +86,8 @@ class CosmicWeatherViewModel(
                 if (weather != null) {
                     // Generate horoscope
                     val newHoroscope = horoscopeGenerator.generate(
-                        sign1 = _userSign.value,
-                        sign2 = _partnerSign.value,
+                        sign1 = userSignValue,
+                        sign2 = partnerSignValue,
                         weather = weather
                     )
                     _horoscope.value = newHoroscope

@@ -6,6 +6,12 @@ import android.location.Geocoder
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -236,7 +242,11 @@ fun CosmicWeatherScreen(
                     .verticalScroll(rememberScrollState())
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = if (horoscope == null) {
+                    Arrangement.Center
+                } else {
+                    Arrangement.spacedBy(16.dp)
+                }
             ) {
             // Zodiac Sign Selectors
             SignSelectorsCard(
@@ -270,9 +280,28 @@ fun CosmicWeatherScreen(
                 }
             }
 
-            // Horoscope Content
-            horoscope?.let { horo ->
-                HoroscopeCard(horoscope = horo, locationText = locationText)
+            // Horoscope Content - Animates in when both signs are selected
+            AnimatedVisibility(
+                visible = horoscope != null,
+                enter = fadeIn(
+                    animationSpec = tween(durationMillis = 800)
+                ) + expandVertically(
+                    animationSpec = tween(durationMillis = 800)
+                ),
+                exit = fadeOut(
+                    animationSpec = tween(durationMillis = 400)
+                ) + shrinkVertically(
+                    animationSpec = tween(durationMillis = 400)
+                )
+            ) {
+                horoscope?.let { horo ->
+                    Column {
+                        if (horoscope != null) {
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
+                        HoroscopeCard(horoscope = horo, locationText = locationText)
+                    }
+                }
             }
         }
         }
@@ -285,8 +314,8 @@ fun CosmicWeatherScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignSelectorsCard(
-    userSign: ZodiacSign,
-    partnerSign: ZodiacSign,
+    userSign: ZodiacSign?,
+    partnerSign: ZodiacSign?,
     onUserSignSelected: (ZodiacSign) -> Unit,
     onPartnerSignSelected: (ZodiacSign) -> Unit,
     modifier: Modifier = Modifier
@@ -332,12 +361,12 @@ fun SignSelectorsCard(
 @Composable
 fun ZodiacSignDropdown(
     label: String,
-    selectedSign: ZodiacSign,
+    selectedSign: ZodiacSign?,
     onSignSelected: (ZodiacSign) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val signs = ZodiacSign.values()
+    val signs = ZodiacSign.entries.toTypedArray()
 
     ExposedDropdownMenuBox(
         expanded = expanded,
@@ -345,10 +374,11 @@ fun ZodiacSignDropdown(
         modifier = modifier.fillMaxWidth()
     ) {
         OutlinedTextField(
-            value = selectedSign.displayName,
+            value = selectedSign?.displayName ?: "",
             onValueChange = {},
             readOnly = true,
             label = { Text(label) },
+            placeholder = { Text("Select your sign") },
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
             },
