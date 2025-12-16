@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.cosmicweather.data.repository.WeatherRepository
 import com.example.cosmicweather.domain.generator.HoroscopeGenerator
 import com.example.cosmicweather.domain.model.Horoscope
+import com.example.cosmicweather.domain.model.Weather
 import com.example.cosmicweather.domain.model.ZodiacSign
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -28,6 +29,10 @@ class CosmicWeatherViewModel(
     private val _partnerSign = MutableStateFlow<ZodiacSign?>(null)
     val partnerSign: StateFlow<ZodiacSign?> = _partnerSign.asStateFlow()
 
+    // Current weather (for background display)
+    private val _weather = MutableStateFlow<Weather?>(null)
+    val weather: StateFlow<Weather?> = _weather.asStateFlow()
+
     // Generated horoscope
     private val _horoscope = MutableStateFlow<Horoscope?>(null)
     val horoscope: StateFlow<Horoscope?> = _horoscope.asStateFlow()
@@ -40,6 +45,25 @@ class CosmicWeatherViewModel(
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
+    init {
+        // Load initial weather for background
+        loadInitialWeather()
+    }
+
+    /**
+     * Load initial weather on startup for background display.
+     */
+    private fun loadInitialWeather() {
+        viewModelScope.launch {
+            try {
+                val weather = weatherRepository.getRandomWeather()
+                _weather.value = weather
+            } catch (e: Exception) {
+                // Silently fail - background will use default
+            }
+        }
+    }
+
     /**
      * Update user's zodiac sign and regenerate horoscope if both signs are selected.
      */
@@ -47,7 +71,7 @@ class CosmicWeatherViewModel(
         _userSign.value = sign
         // Only generate if both signs are selected
         if (_partnerSign.value != null) {
-            generateNewReading()
+            generateHoroscope()
         }
     }
 
@@ -58,12 +82,53 @@ class CosmicWeatherViewModel(
         _partnerSign.value = sign
         // Only generate if both signs are selected
         if (_userSign.value != null) {
-            generateNewReading()
+            generateHoroscope()
+        }
+    }
+
+    /**
+     * Generate horoscope with current weather (used when signs are selected).
+     * Uses the existing weather to keep the background consistent.
+     */
+    private fun generateHoroscope() {
+        val userSignValue = _userSign.value
+        val partnerSignValue = _partnerSign.value
+        val currentWeather = _weather.value
+
+        // Both signs must be selected to generate horoscope
+        if (userSignValue == null || partnerSignValue == null) {
+            return
+        }
+
+        // If no weather exists yet, load it first
+        if (currentWeather == null) {
+            loadInitialWeather()
+            return
+        }
+
+        viewModelScope.launch {
+            _isLoading.value = true
+            _error.value = null
+
+            try {
+                // Generate horoscope with existing weather
+                val newHoroscope = horoscopeGenerator.generate(
+                    sign1 = userSignValue,
+                    sign2 = partnerSignValue,
+                    weather = currentWeather
+                )
+                _horoscope.value = newHoroscope
+            } catch (e: Exception) {
+                _error.value = "Failed to generate horoscope: ${e.message}"
+            } finally {
+                _isLoading.value = false
+            }
         }
     }
 
     /**
      * Generate a new horoscope reading with random weather.
+     * Gets new random weather and updates both background and horoscope.
      * Only generates if both signs are selected.
      */
     fun generateNewReading() {
@@ -84,6 +149,9 @@ class CosmicWeatherViewModel(
                 val weather = weatherRepository.getRandomWeather()
 
                 if (weather != null) {
+                    // Update weather state for background
+                    _weather.value = weather
+
                     // Generate horoscope
                     val newHoroscope = horoscopeGenerator.generate(
                         sign1 = userSignValue,

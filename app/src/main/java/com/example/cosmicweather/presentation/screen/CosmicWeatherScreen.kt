@@ -152,6 +152,7 @@ fun CosmicWeatherScreen(
 ) {
     val userSign by viewModel.userSign.collectAsState()
     val partnerSign by viewModel.partnerSign.collectAsState()
+    val weather by viewModel.weather.collectAsState()
     val horoscope by viewModel.horoscope.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
@@ -214,8 +215,8 @@ fun CosmicWeatherScreen(
     ) { paddingValues ->
         Box(modifier = Modifier.fillMaxSize()) {
             // Dynamic weather background
-            horoscope?.let { horo ->
-                val backgroundRes = getWeatherBackgroundRes(horo.weather.condition)
+            weather?.let { currentWeather ->
+                val backgroundRes = getWeatherBackgroundRes(currentWeather.condition)
                 if (backgroundRes != null) {
                     // Use image background
                     Image(
@@ -229,7 +230,7 @@ fun CosmicWeatherScreen(
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(getWeatherGradient(horo.weather.condition))
+                            .background(getWeatherGradient(currentWeather.condition))
                     )
                 }
             }
