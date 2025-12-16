@@ -1,5 +1,10 @@
 package com.example.cosmicweather.presentation.screen
 
+import android.Manifest
+import android.annotation.SuppressLint
+import android.location.Geocoder
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -15,17 +20,58 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.google.android.gms.location.LocationServices
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import com.example.cosmicweather.R
 import com.example.cosmicweather.domain.model.Horoscope
 import com.example.cosmicweather.domain.model.Weather
 import com.example.cosmicweather.domain.model.ZodiacSign
 import com.example.cosmicweather.presentation.viewmodel.CosmicWeatherViewModel
 import com.example.cosmicweather.ui.theme.CosmicWeatherTheme
+
+/**
+ * Converts Celsius to Fahrenheit.
+ */
+private fun celsiusToFahrenheit(celsius: Int): Int = (celsius * 9 / 5) + 32
+
+/**
+ * Gets the user's current location and converts it to a readable city name.
+ */
+@SuppressLint("MissingPermission")
+private fun getLocation(context: android.content.Context, onLocationReceived: (String) -> Unit) {
+    val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+
+    fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+        if (location != null) {
+            try {
+                val geocoder = Geocoder(context, Locale.getDefault())
+                val addresses = geocoder.getFromLocation(location.latitude, location.longitude, 1)
+
+                if (addresses?.isNotEmpty() == true) {
+                    val address = addresses[0]
+                    val cityName = address.locality ?: address.subAdminArea ?: address.adminArea ?: "Unknown Location"
+                    onLocationReceived(cityName)
+                } else {
+                    onLocationReceived("Unknown Location")
+                }
+            } catch (e: Exception) {
+                onLocationReceived("Your Location")
+            }
+        } else {
+            onLocationReceived("Your Location")
+        }
+    }.addOnFailureListener {
+        onLocationReceived("Your Location")
+    }
+}
 
 /**
  * Maps zodiac signs to their vector drawable resources.
@@ -103,6 +149,32 @@ fun CosmicWeatherScreen(
     val horoscope by viewModel.horoscope.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
+
+    val context = LocalContext.current
+    var locationText by remember { mutableStateOf("Your Location") }
+
+    // Location permission launcher
+    val locationPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        if (permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true ||
+            permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true) {
+            // Permission granted, get location
+            getLocation(context) { location ->
+                locationText = location
+            }
+        }
+    }
+
+    // Request location permission on first composition
+    LaunchedEffect(Unit) {
+        locationPermissionLauncher.launch(
+            arrayOf(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            )
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -200,7 +272,7 @@ fun CosmicWeatherScreen(
 
             // Horoscope Content
             horoscope?.let { horo ->
-                HoroscopeCard(horoscope = horo)
+                HoroscopeCard(horoscope = horo, locationText = locationText)
             }
         }
         }
@@ -317,6 +389,7 @@ fun ZodiacSignDropdown(
 @Composable
 fun HoroscopeCard(
     horoscope: Horoscope,
+    locationText: String = "Your Location",
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -358,12 +431,30 @@ fun HoroscopeCard(
             }
 
             // Weather display
-            Text(
-                text = "${horoscope.weather.condition}, ${horoscope.weather.temperature}°C",
-                style = MaterialTheme.typography.titleLarge,
-                textAlign = TextAlign.Center,
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.fillMaxWidth()
-            )
+            ) {
+                Text(
+                    text = "${horoscope.weather.condition}, ${celsiusToFahrenheit(horoscope.weather.temperature)}°F",
+                    style = MaterialTheme.typography.titleLarge,
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = locationText,
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.8f)
+                )
+                Text(
+                    text = SimpleDateFormat("EEEE, MMMM d, yyyy", Locale.getDefault()).format(Date()),
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.8f)
+                )
+            }
 
             HorizontalDivider()
 

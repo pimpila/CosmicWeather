@@ -61,6 +61,9 @@ dependencies {
     // ViewModel for Compose
     implementation(libs.androidx.lifecycle.viewmodel.compose)
 
+    // Location Services
+    implementation(libs.play.services.location)
+
     // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
