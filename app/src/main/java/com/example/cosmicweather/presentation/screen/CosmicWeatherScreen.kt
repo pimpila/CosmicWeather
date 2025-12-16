@@ -249,6 +249,36 @@ fun CosmicWeatherScreen(
                     Arrangement.spacedBy(16.dp)
                 }
             ) {
+            // Weather Display (shown when weather is available)
+            weather?.let { currentWeather ->
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = "${currentWeather.condition}, ${celsiusToFahrenheit(currentWeather.temperature)}°F",
+                        style = MaterialTheme.typography.headlineMedium,
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = locationText,
+                        style = MaterialTheme.typography.bodyLarge,
+                        textAlign = TextAlign.Center,
+                        color = Color.White.copy(alpha = 0.9f)
+                    )
+                    Text(
+                        text = SimpleDateFormat("EEEE, MMMM d, yyyy", Locale.getDefault()).format(Date()),
+                        style = MaterialTheme.typography.bodyLarge,
+                        textAlign = TextAlign.Center,
+                        color = Color.White.copy(alpha = 0.9f)
+                    )
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
+            }
+
             // Zodiac Sign Selectors
             SignSelectorsCard(
                 userSign = userSign,
@@ -300,7 +330,7 @@ fun CosmicWeatherScreen(
                         if (horoscope != null) {
                             Spacer(modifier = Modifier.height(16.dp))
                         }
-                        HoroscopeCard(horoscope = horo, locationText = locationText)
+                        HoroscopeCard(horoscope = horo)
                     }
                 }
             }
@@ -420,7 +450,6 @@ fun ZodiacSignDropdown(
 @Composable
 fun HoroscopeCard(
     horoscope: Horoscope,
-    locationText: String = "Your Location",
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -458,32 +487,6 @@ fun HoroscopeCard(
                     contentDescription = horoscope.sign2.displayName,
                     modifier = Modifier.size(40.dp),
                     tint = MaterialTheme.colorScheme.primary
-                )
-            }
-
-            // Weather display
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    text = "${horoscope.weather.condition}, ${celsiusToFahrenheit(horoscope.weather.temperature)}°F",
-                    style = MaterialTheme.typography.titleLarge,
-                    textAlign = TextAlign.Center,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = locationText,
-                    style = MaterialTheme.typography.bodyMedium,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.8f)
-                )
-                Text(
-                    text = SimpleDateFormat("EEEE, MMMM d, yyyy", Locale.getDefault()).format(Date()),
-                    style = MaterialTheme.typography.bodyMedium,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.8f)
                 )
             }
 
