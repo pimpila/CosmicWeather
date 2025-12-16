@@ -185,8 +185,9 @@ fun CosmicWeatherScreen(
             error?.let { errorMessage ->
                 Card(
                     modifier = Modifier.fillMaxWidth(),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
                     colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.errorContainer
+                        containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.8f)
                     )
                 ) {
                     Text(
@@ -220,15 +221,18 @@ fun SignSelectorsCard(
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)
+        )
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            modifier = Modifier.padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
                 text = "Select Your Signs",
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.Bold
             )
 
@@ -279,12 +283,18 @@ fun ZodiacSignDropdown(
             modifier = Modifier
                 .fillMaxWidth()
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable),
-            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
+            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent
+            )
         )
 
         ExposedDropdownMenu(
             expanded = expanded,
-            onDismissRequest = { expanded = false }
+            onDismissRequest = { expanded = false },
+            modifier = Modifier.background(
+                MaterialTheme.colorScheme.surface.copy(alpha = 0.85f)
+            )
         ) {
             signs.forEach { sign ->
                 DropdownMenuItem(
@@ -311,14 +321,14 @@ fun HoroscopeCard(
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer
+            containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.75f)
         )
     ) {
         Column(
-            modifier = Modifier.padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            modifier = Modifier.padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             // Sign pairing with zodiac icons
             Row(
@@ -329,40 +339,31 @@ fun HoroscopeCard(
                 Icon(
                     painter = painterResource(horoscope.sign1.toDrawableRes()),
                     contentDescription = horoscope.sign1.displayName,
-                    modifier = Modifier.size(48.dp),
+                    modifier = Modifier.size(40.dp),
                     tint = MaterialTheme.colorScheme.primary
                 )
-                Spacer(modifier = Modifier.width(16.dp))
+                Spacer(modifier = Modifier.width(12.dp))
                 Text(
                     text = "+",
-                    style = MaterialTheme.typography.displaySmall,
+                    style = MaterialTheme.typography.headlineLarge,
                     fontWeight = FontWeight.Bold
                 )
-                Spacer(modifier = Modifier.width(16.dp))
+                Spacer(modifier = Modifier.width(12.dp))
                 Icon(
                     painter = painterResource(horoscope.sign2.toDrawableRes()),
                     contentDescription = horoscope.sign2.displayName,
-                    modifier = Modifier.size(48.dp),
+                    modifier = Modifier.size(40.dp),
                     tint = MaterialTheme.colorScheme.primary
                 )
             }
 
             // Weather display
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = horoscope.weather.emoji,
-                    style = MaterialTheme.typography.displaySmall
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "${horoscope.weather.condition}, ${horoscope.weather.temperature}°C",
-                    style = MaterialTheme.typography.titleLarge
-                )
-            }
+            Text(
+                text = "${horoscope.weather.condition}, ${horoscope.weather.temperature}°C",
+                style = MaterialTheme.typography.titleLarge,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
 
             HorizontalDivider()
 
