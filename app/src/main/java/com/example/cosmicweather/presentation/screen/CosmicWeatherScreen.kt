@@ -1,5 +1,6 @@
 package com.example.cosmicweather.presentation.screen
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -9,15 +10,36 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.cosmicweather.R
 import com.example.cosmicweather.domain.model.Horoscope
 import com.example.cosmicweather.domain.model.Weather
 import com.example.cosmicweather.domain.model.ZodiacSign
 import com.example.cosmicweather.presentation.viewmodel.CosmicWeatherViewModel
 import com.example.cosmicweather.ui.theme.CosmicWeatherTheme
+
+/**
+ * Maps zodiac signs to their vector drawable resources.
+ */
+@DrawableRes
+private fun ZodiacSign.toDrawableRes(): Int = when (this) {
+    ZodiacSign.ARIES -> R.drawable.ic_zodiac_aries
+    ZodiacSign.TAURUS -> R.drawable.ic_zodiac_taurus
+    ZodiacSign.GEMINI -> R.drawable.ic_zodiac_gemini
+    ZodiacSign.CANCER -> R.drawable.ic_zodiac_cancer
+    ZodiacSign.LEO -> R.drawable.ic_zodiac_leo
+    ZodiacSign.VIRGO -> R.drawable.ic_zodiac_virgo
+    ZodiacSign.LIBRA -> R.drawable.ic_zodiac_libra
+    ZodiacSign.SCORPIO -> R.drawable.ic_zodiac_scorpio
+    ZodiacSign.SAGITTARIUS -> R.drawable.ic_zodiac_sagittarius
+    ZodiacSign.CAPRICORN -> R.drawable.ic_zodiac_capricorn
+    ZodiacSign.AQUARIUS -> R.drawable.ic_zodiac_aquarius
+    ZodiacSign.PISCES -> R.drawable.ic_zodiac_pisces
+}
 
 /**
  * Main Cosmic Weather screen.
@@ -225,14 +247,32 @@ fun HoroscopeCard(
             modifier = Modifier.padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Sign pairing
-            Text(
-                text = "${horoscope.sign1.displayName} + ${horoscope.sign2.displayName}",
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
+            // Sign pairing with zodiac icons
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    painter = painterResource(horoscope.sign1.toDrawableRes()),
+                    contentDescription = horoscope.sign1.displayName,
+                    modifier = Modifier.size(48.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                Text(
+                    text = "+",
+                    style = MaterialTheme.typography.displaySmall,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                Icon(
+                    painter = painterResource(horoscope.sign2.toDrawableRes()),
+                    contentDescription = horoscope.sign2.displayName,
+                    modifier = Modifier.size(48.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
 
             // Weather display
             Row(
