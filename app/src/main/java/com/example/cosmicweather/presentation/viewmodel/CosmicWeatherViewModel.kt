@@ -7,6 +7,7 @@ import com.example.cosmicweather.domain.generator.HoroscopeGenerator
 import com.example.cosmicweather.domain.model.Horoscope
 import com.example.cosmicweather.domain.model.Weather
 import com.example.cosmicweather.domain.model.ZodiacSign
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -52,11 +53,21 @@ class CosmicWeatherViewModel(
 
     /**
      * Load initial weather on startup for background display.
+     * Retries if database is not populated yet.
      */
     private fun loadInitialWeather() {
         viewModelScope.launch {
             try {
-                val weather = weatherRepository.getRandomWeather()
+                var weather = weatherRepository.getRandomWeather()
+                var attempts = 0
+
+                // Retry if null (database might still be populating)
+                while (weather == null && attempts < 5) {
+                    delay(200) // Wait 200ms
+                    weather = weatherRepository.getRandomWeather()
+                    attempts++
+                }
+
                 _weather.value = weather
             } catch (e: Exception) {
                 // Silently fail - background will use default
@@ -93,16 +104,9 @@ class CosmicWeatherViewModel(
     private fun generateHoroscope() {
         val userSignValue = _userSign.value
         val partnerSignValue = _partnerSign.value
-        val currentWeather = _weather.value
 
         // Both signs must be selected to generate horoscope
         if (userSignValue == null || partnerSignValue == null) {
-            return
-        }
-
-        // If no weather exists yet, load it first
-        if (currentWeather == null) {
-            loadInitialWeather()
             return
         }
 
@@ -111,6 +115,24 @@ class CosmicWeatherViewModel(
             _error.value = null
 
             try {
+                var currentWeather = _weather.value
+                var attempts = 0
+
+                // Wait for weather to load if null (database might still be populating)
+                while (currentWeather == null && attempts < 5) {
+                    delay(200)
+                    currentWeather = weatherRepository.getRandomWeather()
+                    if (currentWeather != null) {
+                        _weather.value = currentWeather
+                    }
+                    attempts++
+                }
+
+                if (currentWeather == null) {
+                    _error.value = "Unable to load weather data"
+                    return@launch
+                }
+
                 // Generate horoscope with existing weather
                 val newHoroscope = horoscopeGenerator.generate(
                     sign1 = userSignValue,

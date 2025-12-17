@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
  */
 @Database(
     entities = [WeatherConditionEntity::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class WeatherDatabase : RoomDatabase() {
@@ -40,10 +40,31 @@ abstract class WeatherDatabase : RoomDatabase() {
                     WeatherDatabase::class.java,
                     DATABASE_NAME
                 )
+                    .fallbackToDestructiveMigration()
                     .addCallback(DatabaseCallback())
                     .build()
                 INSTANCE = instance
+
+                // Ensure database is populated
+                CoroutineScope(Dispatchers.IO).launch {
+                    ensureDatabasePopulated(instance.weatherDao())
+                }
+
                 instance
+            }
+        }
+
+        /**
+         * Ensure database is populated with weather data.
+         * If empty, populate it.
+         */
+        private suspend fun ensureDatabasePopulated(weatherDao: WeatherDao) {
+            // Check if database has data
+            val allWeather = weatherDao.getAllWeatherList()
+
+            // If empty, populate it
+            if (allWeather.isEmpty()) {
+                populateDatabase(weatherDao)
             }
         }
 
@@ -103,52 +124,24 @@ abstract class WeatherDatabase : RoomDatabase() {
                 ),
                 WeatherConditionEntity(
                     id = 6,
-                    condition = "Partly Cloudy",
-                    temperature = 22,
-                    emoji = "⛅",
-                    mood = "balanced"
-                ),
-                WeatherConditionEntity(
-                    id = 7,
                     condition = "Stormy",
                     temperature = 16,
                     emoji = "⛈️",
                     mood = "intense"
                 ),
                 WeatherConditionEntity(
-                    id = 8,
+                    id = 7,
                     condition = "Clear Night",
                     temperature = 10,
                     emoji = "🌙",
                     mood = "romantic"
                 ),
                 WeatherConditionEntity(
-                    id = 9,
+                    id = 8,
                     condition = "Windy",
                     temperature = 14,
                     emoji = "💨",
                     mood = "restless"
-                ),
-                WeatherConditionEntity(
-                    id = 10,
-                    condition = "Hot",
-                    temperature = 35,
-                    emoji = "🔥",
-                    mood = "passionate"
-                ),
-                WeatherConditionEntity(
-                    id = 11,
-                    condition = "Crisp",
-                    temperature = 5,
-                    emoji = "🍂",
-                    mood = "refreshing"
-                ),
-                WeatherConditionEntity(
-                    id = 12,
-                    condition = "Humid",
-                    temperature = 28,
-                    emoji = "💧",
-                    mood = "sluggish"
                 )
             )
 

@@ -158,11 +158,6 @@ object HoroscopeTemplates {
             energyDescription = "enigmatic and curious",
             activityType = "exploring something new"
         ),
-        "balanced" to WeatherInfluence(
-            mood = "balanced",
-            energyDescription = "harmonious and steady",
-            activityType = "collaborative projects"
-        ),
         "intense" to WeatherInfluence(
             mood = "intense",
             energyDescription = "emotionally charged",
@@ -177,21 +172,6 @@ object HoroscopeTemplates {
             mood = "restless",
             energyDescription = "dynamic and changeable",
             activityType = "spontaneous plans"
-        ),
-        "passionate" to WeatherInfluence(
-            mood = "passionate",
-            energyDescription = "fiery and expressive",
-            activityType = "bold experiences"
-        ),
-        "refreshing" to WeatherInfluence(
-            mood = "refreshing",
-            energyDescription = "invigorating and clear",
-            activityType = "fresh starts"
-        ),
-        "sluggish" to WeatherInfluence(
-            mood = "sluggish",
-            energyDescription = "low-energy and laid-back",
-            activityType = "relaxed lounging"
         )
     )
 

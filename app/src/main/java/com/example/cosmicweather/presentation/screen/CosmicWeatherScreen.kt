@@ -110,35 +110,18 @@ private fun getWeatherBackgroundRes(weatherCondition: String): Int? = when (weat
     "Snowy" -> R.drawable.bg_weather_snowy
     "Stormy" -> R.drawable.bg_weather_stormy
     "Clear Night" -> R.drawable.bg_weather_clear_night
+    "Foggy" -> R.drawable.bg_weather_foggy
+    "Windy" -> R.drawable.bg_weather_windy
     else -> null // Weather types without images use gradients
 }
 
 /**
  * Gets gradient brush for weather conditions that don't have images.
+ * Fallback for any weather types without background images.
  */
-private fun getWeatherGradient(weatherCondition: String): Brush = when (weatherCondition) {
-    "Foggy" -> Brush.verticalGradient(
-        colors = listOf(Color(0xFFB0BEC5), Color(0xFF90A4AE), Color(0xFF78909C))
-    )
-    "Partly Cloudy" -> Brush.verticalGradient(
-        colors = listOf(Color(0xFF81D4FA), Color(0xFF4FC3F7), Color(0xFF29B6F6))
-    )
-    "Windy" -> Brush.verticalGradient(
-        colors = listOf(Color(0xFFB0BEC5), Color(0xFF78909C), Color(0xFF546E7A))
-    )
-    "Hot" -> Brush.verticalGradient(
-        colors = listOf(Color(0xFFFF6F00), Color(0xFFFF8F00), Color(0xFFFFA726))
-    )
-    "Crisp" -> Brush.verticalGradient(
-        colors = listOf(Color(0xFF90CAF9), Color(0xFF64B5F6), Color(0xFF42A5F5))
-    )
-    "Humid" -> Brush.verticalGradient(
-        colors = listOf(Color(0xFFFFE082), Color(0xFFFFD54F), Color(0xFFFFCA28))
-    )
-    else -> Brush.verticalGradient(
-        colors = listOf(Color(0xFF81D4FA), Color(0xFF4FC3F7), Color(0xFF29B6F6))
-    )
-}
+private fun getWeatherGradient(weatherCondition: String): Brush = Brush.verticalGradient(
+    colors = listOf(Color(0xFF81D4FA), Color(0xFF4FC3F7), Color(0xFF29B6F6))
+)
 
 /**
  * Main Cosmic Weather screen.

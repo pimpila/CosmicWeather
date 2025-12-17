@@ -24,6 +24,12 @@ interface WeatherDao {
     fun getAllWeather(): Flow<List<WeatherConditionEntity>>
 
     /**
+     * Get all weather conditions as a list (for checking if database is populated).
+     */
+    @Query("SELECT * FROM weather_conditions ORDER BY id ASC")
+    suspend fun getAllWeatherList(): List<WeatherConditionEntity>
+
+    /**
      * Get weather by ID.
      */
     @Query("SELECT * FROM weather_conditions WHERE id = :id LIMIT 1")
