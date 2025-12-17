@@ -29,7 +29,7 @@ class MainActivity : ComponentActivity() {
 
         // Initialize database and repository
         val database = WeatherDatabase.getDatabase(applicationContext)
-        val weatherRepository = WeatherRepository(database.weatherDao())
+        val weatherRepository = WeatherRepository(database.weatherDao(), database)
 
         // Initialize horoscope generator
         val horoscopeGenerator = HoroscopeGenerator()

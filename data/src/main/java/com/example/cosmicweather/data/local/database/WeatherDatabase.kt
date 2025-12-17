@@ -44,21 +44,16 @@ abstract class WeatherDatabase : RoomDatabase() {
                     .addCallback(DatabaseCallback())
                     .build()
                 INSTANCE = instance
-
-                // Ensure database is populated
-                CoroutineScope(Dispatchers.IO).launch {
-                    ensureDatabasePopulated(instance.weatherDao())
-                }
-
                 instance
             }
         }
 
         /**
          * Ensure database is populated with weather data.
-         * If empty, populate it.
+         * If empty, populate it. Call this before using the database.
          */
-        private suspend fun ensureDatabasePopulated(weatherDao: WeatherDao) {
+        suspend fun ensureDatabasePopulated(database: WeatherDatabase) {
+            val weatherDao = database.weatherDao()
             // Check if database has data
             val allWeather = weatherDao.getAllWeatherList()
 
