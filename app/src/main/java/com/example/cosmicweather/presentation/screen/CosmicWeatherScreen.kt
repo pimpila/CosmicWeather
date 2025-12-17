@@ -6,12 +6,11 @@ import android.location.Geocoder
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.DrawableRes
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -295,29 +294,34 @@ fun CosmicWeatherScreen(
             }
 
             // Horoscope Content - Animates in when both signs are selected
-            AnimatedVisibility(
-                visible = horoscope != null,
-                enter = fadeIn(
-                    animationSpec = tween(durationMillis = 800)
-                ) + expandVertically(
-                    animationSpec = tween(durationMillis = 800)
-                ),
-                exit = fadeOut(
-                    animationSpec = tween(durationMillis = 400)
-                ) + shrinkVertically(
-                    animationSpec = tween(durationMillis = 400)
-                )
-            ) {
-                horoscope?.let { horo ->
-                    Column {
-                        if (horoscope != null) {
-                            Spacer(modifier = Modifier.height(16.dp))
-                        }
-                        HoroscopeCard(horoscope = horo)
-                    }
-                }
-            }
+            AnimatedHoroscopeCard(horoscope = horoscope)
         }
+        }
+    }
+}
+
+/**
+ * Animated wrapper for horoscope card that properly recomposes when horoscope changes.
+ */
+@Composable
+fun AnimatedHoroscopeCard(
+    horoscope: Horoscope?,
+    modifier: Modifier = Modifier
+) {
+    AnimatedContent(
+        targetState = horoscope,
+        transitionSpec = {
+            fadeIn(animationSpec = tween(600)) togetherWith
+                    fadeOut(animationSpec = tween(400))
+        },
+        modifier = modifier,
+        label = "horoscope_animation"
+    ) { currentHoroscope ->
+        if (currentHoroscope != null) {
+            Column {
+                Spacer(modifier = Modifier.height(16.dp))
+                HoroscopeCard(horoscope = currentHoroscope)
+            }
         }
     }
 }
