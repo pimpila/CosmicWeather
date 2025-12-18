@@ -47,4 +47,16 @@ dependencies {
 
     // Core AndroidX
     implementation(libs.androidx.core.ktx)
+
+    // Testing - Unit tests
+    testImplementation(libs.junit)
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.mockito.kotlin)
+    testImplementation(libs.kotlinx.coroutines.test)
+
+    // Testing - Instrumented tests
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.test.core)
+    androidTestImplementation(libs.kotlinx.coroutines.test)
 }
